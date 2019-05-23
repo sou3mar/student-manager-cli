@@ -1,0 +1,5 @@
+Akram Nosrati HumanScience
+Economy 3 20
+History 2 18
+Philosophy 3 12
+English 2 16

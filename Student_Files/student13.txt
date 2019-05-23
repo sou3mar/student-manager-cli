@@ -1,0 +1,5 @@
+Peyman Shahi HumanScience
+Economy 3 20
+History 2 20
+Philosophy 3 14
+English 2 14

@@ -1,0 +1,5 @@
+Yalda Rasooli HumanScience
+Economy 3 20
+History 2 20
+Philosophy 3 18
+English 2 16.5
