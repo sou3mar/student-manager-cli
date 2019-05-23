@@ -1,14 +1,14 @@
 /*
 //	by: Amir Mohsen Ekhtiary	|	https://amirmohsen.atbox.io
 //
-//  Data Structure:
+//	Data Structure:
 //
-//		    	Data Types	     		|	Student 0	|	  Student 1		|	...
+//		    	Data Types				|	Student 0	|	  Student 1		|	...
 //____________________________________________________________________________________
-//	vector<string> name					|   Ali Hasani	|  Leila Saeedpoor	|	...
-//	vector<string> dept					|  MathScience	|	 MathScience	|	...
-//	vector<float> avg					|	  18.75		|	    19.4		|	...
-//	vector< vector<Lesson> > lessons	|	lessons[0]	|	 lessons[1]		|	...
+//	vector<string> name					|	Ali Hasani	|	Leila Saeedpoor	|	...
+//	vector<string> dept					|	MathScience	|	MathScience		|	...
+//	vector<float> avg					|	18.75		|	19.4			|	...
+//	vector< vector<Lesson> > lessons	|	lessons[0]	|	lessons[1]		|	...
 //
 //	Indexes start from 0 to fit vector iteration
 */
@@ -18,6 +18,7 @@
 #include<sstream>
 using namespace std;
 
+// a function to convert string to other data-types
 template<typename T>
 T to(const string& str){
 	T val;
@@ -26,14 +27,18 @@ T to(const string& str){
     return val;
 }
 
+// structure of a lesson
 struct Lesson {
 	string name;
+	int coef;
 	float score;
 };
 
+// Main class
 class App {
 	
 	private:
+		// data structure below is explained at the beginning!
 		vector<string> name;
 		vector<string> dept;
 		vector<float> average;
@@ -41,31 +46,45 @@ class App {
 		
 	public:
 		
+		// PUSH the given address to the files list
 		void push(vector<string> *files, string toPush){
 			files->push_back(toPush);
 		}
 		
-		float avg(vector<float> scores, vector<float> zaribs){
-			float sum = 0, zarib = 0;
-			for(unsigned short int i = 0;i < scores.size();i++){
-				zarib += zaribs[i];
-				sum += scores[i] * zaribs[i];
+		void calculateAVG(){
+			for(int i = 0;i < App::lessons.size();i++){
+				
+				float sum = 0;
+				int coef  = 0;
+				for(int j = 0;j < App::lessons[i].size();j++){
+					sum += App::lessons[i][j].score * App::lessons[i][j].coef;
+					coef += App::lessons[i][j].coef;
+				}
+				App::average.push_back(sum / coef);
 			}
-			
-			return sum / zarib;
 		}
 		
+		// reading a file and inserting data to the table
 		void readfile(string file){
-			ifstream inf(file.c_str());
+			ifstream inf(file.c_str()); // Opens a file stream
 
     		if(!inf){
     			cout << "ERROR: Can not read file! => " << file.c_str();
         		exit(1);
     		}
     		
-    		vector<float> zarib, scores;
     		vector<Lesson> lessons;
-    		int line = 1;
+    		int line = 1; // line iterator
+    		
+    		/*
+    		//	File format:
+    		//	FNAME LNAME DEPARTMENT
+    		//	LESSON1 N1 S1
+    		//	LESSON2 N2 S2
+    		//  .......	.	.
+    		//	.......	.	.
+    		//	LESSONn Nn Sn
+    		*/
 
     		while(inf){
         		string strInput;
@@ -73,12 +92,12 @@ class App {
         		
         		if(line == 1){
         			stringstream s(strInput);
-        			string part, name = "";
+        			string part = "", name = "";
         			
         			int counter = 0;
         			while(s >> part){
         				if(counter < 2) name += (counter > 0) ? ' ' + part : part;
-        				if(counter == 2) dept.push_back( part );
+        				if(counter == 2) dept.push_back(part);
         				counter++;
 					}
 					App::name.push_back(name);
@@ -91,11 +110,8 @@ class App {
         			int counter = 0;
         			while(s >> part){
         				if(counter == 0) thisLesson.name = part;
-        				if(counter == 1) zarib.push_back( to<float>(part) );
-        				if(counter == 2){
-        					thisLesson.score = to<float>(part);
-        					scores.push_back( to<float>(part) );
-						}
+        				if(counter == 1) thisLesson.coef = to<float>(part);
+        				if(counter == 2) thisLesson.score = to<float>(part);
         				counter++;
 					}
 					lessons.push_back(thisLesson);
@@ -103,10 +119,7 @@ class App {
 				}
         		line++;
     		}
-    		
-    		float avg = App::avg(scores, zarib);
-    		App::average.push_back( avg );
-    		App::lessons.push_back( lessons );
+    		App::lessons.push_back(lessons);
 		}
 		
 		int max(vector<float> where){
@@ -119,7 +132,7 @@ class App {
 					index = i;
 				}
 			}
-			return index;
+			return index; // returns index of Maximum value
 		}
 		
 		int min(vector<float> where){
@@ -131,24 +144,19 @@ class App {
 					index = i;
 				}
 			}
-			return index;
+			return index; // returns index of Minimum value
 		}
 		
-		void printMax(){
-			int i = max(App::average);
-			cout << App::average[i] << " : " << App::name[i] << endl;
-		}
-		
-		void printMin(){
-			int i = min(App::average);
-			cout << App::average[i] << " : " << App::name[i] << endl;
+		void print(string mode){
+			int index = mode == "max" ? max(App::average) : min(App::average); // index of max / min
+			cout << App::name[index] << ": " << App::average[index] << endl;
 		}
 		
 		void getScoreByName(){
 			float score = 0;
 			string input = "";
 			
-			cout << "Enter name of the student: ";
+			cout << "Enter name of the Student: ";
 			getline(cin, input);
 			
 			for(int i = 0;i < App::name.size();i++){
@@ -174,8 +182,8 @@ class App {
 			vector<int> spec_indexes;
 			for(int i = 0;i < App::dept.size();i++){
 				if(dept[i] == depart){
-					spec_indexes.push_back( i );
-					spec_scores.push_back( App::average[i] );
+					spec_indexes.push_back(i);
+					spec_scores.push_back(App::average[i]);
 				}
 			}
 			
@@ -184,10 +192,9 @@ class App {
 				cin.clear();
 			} else {
 				int index = mode == "max" ? max(spec_scores) : min(spec_scores); // index of max / min
-				
 				index = spec_indexes[index];
 				
-				cout << App::dept[index] << " => " << App::name[index] << " : " << App::average[index] << endl;
+				cout << App::dept[index] << " => " << App::name[index] << ": " << App::average[index] << endl;
 				cin.clear();
 			}
 		}
@@ -210,7 +217,6 @@ class App {
 					}
 				}
 			}
-			
 			cout << App::name[maxIndex] << ": " << maxInLesson << endl;
 		}
 	
@@ -218,7 +224,7 @@ class App {
 
 int main(){
 	vector<string> files;
-	App app;
+	App app; // new Instance of class App
 	
 	app.push(&files, "Student_Files/student1.txt");
 	app.push(&files, "Student_Files/student2.txt");
@@ -239,8 +245,10 @@ int main(){
 	// Read & Store files data
 	for(int i = 0;i < files.size();i++)
 		app.readfile(files[i]);
+		
+	app.calculateAVG();
 	
-	printf("1-   Max Avg\n2-   Max Avg (Specific Field)\n3-   Min Avg\n4-   Min Avg (Specific Field)\n5-   Top in lesson\n6-   Avg (Specific Student)\n7-   Exit (Trash Cleaning)\n");
+	cout << "1-   Max Avg\n2-   Max Avg (Specific Field)\n3-   Min Avg\n4-   Min Avg (Specific Field)\n5-   Top in lesson\n6-   Avg (Specific Student)\n7-   Exit (Trash Cleaning)\n" << endl;
 	unsigned short int command;
 	
 	while(true){
@@ -248,14 +256,14 @@ int main(){
 		cin.clear();
 		cin.get();
 		
-		switch(command){
-			case 1: app.printMax();break;
+		switch(command){ // Menu handler
+			case 1: app.print("max");break;
 			case 2: app.printByDept("max");break;
-			case 3: app.printMin();break;
+			case 3: app.print("min");break;
 			case 4: app.printByDept("min");break;
 			case 5: app.printTopInLesson();break;
 			case 6: app.getScoreByName();break;
-			case 7: return 0;break;
+			case 7: return 0;break; // EXIT
 		}
 		
 	}
